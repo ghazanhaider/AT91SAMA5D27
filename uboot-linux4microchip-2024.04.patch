@@ -1,0 +1,78 @@
+--- /board/atmel/sama5d27_som1_ek/sama5d27_som1_ek.c	2024-07-11 19:58:35.145130619 +0000
++++ /board/atmel/sama5d27_som1_ek/sama5d27_som1_ek.c	2024-07-11 20:28:37.719549188 +0000
+@@ -48,17 +48,27 @@
+ #endif
+ 
+ #ifdef CONFIG_DEBUG_UART_BOARD_INIT
++/*
+ static void board_uart1_hw_init(void)
+ {
+-	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, ATMEL_PIO_PUEN_MASK);	/* URXD1 */
+-	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 3, 0);	/* UTXD1 */
++	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, 0);
++	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 3, 0);
+ 
+ 	at91_periph_clk_enable(ATMEL_ID_UART1);
+ }
++*/
++
++static void board_uart0_hw_init(void)
++{
++        atmel_pio4_set_c_periph(AT91_PIO_PORTB, 26, ATMEL_PIO_PUEN_MASK);
++        atmel_pio4_set_c_periph(AT91_PIO_PORTB, 27, 0);
++
++        at91_periph_clk_enable(ATMEL_ID_UART0);
++}
+ 
+ void board_debug_uart_init(void)
+ {
+-	board_uart1_hw_init();
++	board_uart0_hw_init();
+ }
+ #endif
+ 
+@@ -74,7 +84,7 @@
+ 	/* address of boot parameters */
+ 	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
+ 
+-	rgb_leds_init();
++/*	rgb_leds_init(); */
+ 
+ #ifdef CONFIG_CMD_USB
+ 	board_usb_hw_init();
+ 
+--- /drivers/mtd/nand/raw/nand_timings.c	2024-07-11 19:58:35.369100602 +0000
++++ /drivers/mtd/nand/raw/nand_timings.c	2024-07-11 20:40:47.981679292 +0000
+@@ -293,6 +293,8 @@
+ 			     enum nand_data_interface_type type,
+ 			     int timing_mode)
+ {
++	printf("DEBUG! input timing was %x, making it 0\n",timing_mode); // Added message
++	timing_mode = 0; // Forcing timing mode to JEDEC mode 0 because 5 didn't work for my board
+ 	if (type != NAND_SDR_IFACE)
+ 		return -EINVAL;
+ 
+--- /include/configs/sama5d27_som1_ek.h	2024-07-11 19:58:35.509081842 +0000
++++ /include/configs/sama5d27_som1_ek.h	2024-07-11 20:32:19.305852142 +0000
+@@ -12,9 +12,19 @@
+ #include "at91-sama5_common.h"
+ 
+ #undef CFG_SYS_AT91_MAIN_CLOCK
+-#define CFG_SYS_AT91_MAIN_CLOCK      24000000 /* from 24 MHz crystal */
++#define CFG_SYS_AT91_MAIN_CLOCK      12000000 /* from 24 MHz crystal */
+ 
+ #define CFG_SYS_PL310_BASE		0xa00000
+-/* SPL */
+ 
++#define CONFIG_MTD_DEBUG
++#define CONFIG_MTD_DEBUG_VERBOSE     1
++
++/* NAND Flash */
++#ifdef CONFIG_CMD_NAND
++#define CFG_SYS_NAND_BASE               0x80000000
++/* our ALE is AD21 */
++#define CFG_SYS_NAND_MASK_ALE   BIT(21)
++/* our CLE is AD22 */
++#define CFG_SYS_NAND_MASK_CLE   BIT(22)
++#endif
+ #endif
