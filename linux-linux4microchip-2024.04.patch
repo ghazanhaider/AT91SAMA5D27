@@ -1,0 +1,11 @@
+--- /drivers/mtd/nand/raw/nand_timings.c	2024-05-24 12:04:06.000000000 +0000
++++ /drivers/mtd/nand/raw/nand_timings.c	2024-07-12 04:53:01.090642507 +0000
+@@ -657,6 +657,8 @@
+ 
+ 	if (WARN_ON(timing_mode >= ARRAY_SIZE(onfi_sdr_timings)))
+ 		return;
++ 	pr_alert("DEBUG!! NAND ONFI timing mode is %d but we are hardcoding it to 1\n",timing_mode);
++ 	timing_mode = 1; //DEBUG
+ 
+ 	*iface = onfi_sdr_timings[timing_mode];
+ 
