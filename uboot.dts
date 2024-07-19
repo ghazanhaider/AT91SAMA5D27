@@ -61,7 +61,7 @@
 	chosen {
 		bootph-all;
 		bootargs = "console=ttyS1,115200 earlyprintk earlycon";
-		stdout-path = &uart0;
+		stdout-path = &uart1;
 	};
 	memory {
 		device_type = "memory";

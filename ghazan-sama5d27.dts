@@ -92,7 +92,7 @@
 							reg = <0x180000 0x40000>;
 						};
 
-						kernel@200000 {
+						kernel@1C0000 {
 							label = "kernel";
 							reg = <0x1C0000 0x640000>;
 						};
@@ -118,7 +118,7 @@
                                 status = "okay";
                                 hlcdc-display-controller {
                                         pinctrl-names = "default";
-                                        pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb565>;
+                                        pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_rgb666>;
                                         port@0 {
                                                 hlcdc_panel_output: endpoint@0 {
                                                         reg = <0>;
@@ -127,6 +127,8 @@
 					};
 				};
                                 hlcdc_pwm: hlcdc-pwm {
+			                pinctrl-names = "default";
+			                pinctrl-0 = <&pinctrl_lcd_pwm>;
                                 };
 			};
 
