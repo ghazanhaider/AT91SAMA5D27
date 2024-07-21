@@ -166,20 +166,20 @@
  }
 --- /include/ddr_device.h	2024-07-11 14:18:48.129403070 +0000
 +++ /include/ddr_device.h	2024-07-11 19:22:54.116071817 +0000
-@@ -13,7 +13,31 @@
- 
+@@ -13,7 +13,49 @@
+
  #if defined(CONFIG_DDR_SET_BY_DEVICE)
  static const struct ddram_timings ddr_ddram_timings = {
 -#if defined(CONFIG_DDR_MT41K128M16_D2)
 +#if defined(CONFIG_DDR_D1216ECMDXGJD)
-+#if defined(CONFIG_BUS_SPEED_124MHZ) || defined(CONFIG_BUS_SPEED_133MHZ) || defined(CONFIG_BUS_SPEED_166MHZ)
-+	
++#if defined(CONFIG_BUS_SPEED_124MHZ) || defined(CONFIG_BUS_SPEED_133MHZ)
++
 +        .tras = 5,
 +        .trcd = 2,
 +        .twr = 4, // 1-15. JEDEC:15
 +        .trc = 6,
 +        .trp = 2,
-+        .trrd = 1,
++        .trrd = 4,
 +        .twtr = 4, // 1-7
 +        .tmrd = 4, // 0-15. JEDEC=4
 +        .trfc = 29,
@@ -191,6 +191,24 @@
 +        .trpa = 0, // disabled
 +        .trtp = 4, // 0-7
 +        .tfaw = 5,
++#elif defined(CONFIG_BUS_SPEED_166MHZ)
++        .tras = 6,
++        .trcd = 3,
++        .twr = 4,
++        .trc = 9,
++        .trp = 3,
++        .trrd = 4,
++        .twtr = 4,
++        .tmrd = 4,
++        .trfc = 243,
++        .txsnr = 29,
++        .txsrd = 0,
++        .txp = 3,
++        .txard = 0,
++        .txards = 0,
++        .trpa = 0,
++        .trtp = 4,
++        .tfaw = 33,
 +#else
 +        #error "No CLK setting defined"
 +#endif /* Endif of CONFIG_BUS_SPEED_124MHZ */

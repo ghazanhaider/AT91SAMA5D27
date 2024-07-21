@@ -2,21 +2,17 @@
 
 These are config files and steps to run buildroot/Linux on my custom SAMA5D27C board.
 What works for me:
-- A DDR3L memory chip that is run at DLL-off specs (124MHz bus speed) and specific timings
-- Update, memory runs at 166MHz bus just the same.
+- A DDR3L memory chip that is run at DLL-off specs (124MHz bus speed) and 166MHz bus
 - HDLCD with backlight (LCDPWM work in progress)
 - USB Gadget with ACM+ECM (I can connect to console AND get Internet through my desktop)
 - NAND + PMECC ECC and UBI/UBIFS without errors
 - JTAG OR SWD + Vcom UART through the MIPI connector (requires J-Link with VCom)
 - Latest Linux kernel, latest buildroot
+- Passes memtester/fio/dmatest benchmarks on multiple boards
 
 Whats broken:
 - LCD has Blue and Red swapped
 - UARTs are not electrically isolated, sam-ba writes sometime fails with UARTS connected to FTDI host
-- NAND controller must be run with avoiddma=1 else we OOPS. Under investigation
-- `modprobe dmatest run=1 iterations=10 timeout=1000` occasionally fails with bus errors
-- `memtest 128` very occasionally fails
-- Will put on a supported DDR2 chip and re-test
 
 
 ## Steps to build
