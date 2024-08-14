@@ -15,6 +15,28 @@ Whats broken:
 - UARTs are not electrically isolated, sam-ba writes sometime fails with UARTS connected to FTDI host
 
 
+## Individual config files
+br_config                           : Buildroot .config file
+linux_config                        : The Linux kernel .config file. Last tested under 6.10.5
+linux-linux4microchip-2024.04.patch : Patch that forces JEDEC mode1 speeds for my NAND chip. Last tested 6.10.5
+uboot_config                        : UBoot config
+uboot.dts                           : The embedded dts for UBoot for my board. It should eventually be merged with Linux's dts
+at91bootstrap3_config               : AT91Bootstrap .config file that works with the patch below applied
+at91bootstrap3-v4.0.9.patch         : This patch enables our DDR3L RAM chip and extra bus speed options
+ghazan-sama5d27.dts                 : Devicetree that works for my board
+bluetooth-dbus.conf                 : This DBus config file enables Bluetooth for my ASUS BT 400 USB dongle
+gadget.sh                           : The old USB gadget script, I no longer use it
+rcS                                 : My init script that goes into /etc/init.d/
+
+Firmware files that go under /lib/firmware/(rtl_nic|rtl_bt)
+rtl8153a-2.fw          
+rtl8153a-3.fw
+rtl8153a-4.fw
+rtl8153b-2.fw
+rtl8761b_config
+rtl8761b_fw
+
+
 ## Steps to build
 
 (I will improve on these with proper defconfigs)
@@ -46,7 +68,13 @@ Whats broken:
 
 ## Gadget fun
 
-To enable USB Gadget serial + ECM Ethernet (works on MACOS without added drivers), follow these steps
+To enable USB Gadget serial + ECM Ethernet (works on MACOS without added drivers), follow these steps:
+- Copy over the rcS file to /etc/init.d/rcS
+- This will load composite module that makes the USB gadget a serial device, storage and ethernet device (3 in 1)
+- Make an empty file called '/file' in your filesystem, something like `dd if=/dev/zero of=/sama5d2/target/file count=1k bs=1k`
+- Boot
+
+Here's the old manual method of setting up the gadget; I prefer the new kernel-only way above.
 - Mount UBI rw: `mount -o remount,rw /`
 - Add a line to /etc/fstab to automatically mount configfs:
 `none            /sys/kernel/config      configfs        rw      0       0`
