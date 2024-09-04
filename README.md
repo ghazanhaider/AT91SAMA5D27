@@ -28,14 +28,6 @@ bluetooth-dbus.conf                 : This DBus config file enables Bluetooth fo
 gadget.sh                           : The old USB gadget script, I no longer use it
 rcS                                 : My init script that goes into /etc/init.d/
 
-Firmware files that go under /lib/firmware/(rtl_nic|rtl_bt)
-rtl8153a-2.fw          
-rtl8153a-3.fw
-rtl8153a-4.fw
-rtl8153b-2.fw
-rtl8761b_config
-rtl8761b_fw
-
 
 ## Steps to build
 
@@ -49,21 +41,34 @@ rtl8761b_fw
 - `make O=/sama5d2 uboot-nconfig` and save
 - Overwrite its .config with uboot_config
 - Do the same with Linux
+- Copy rcS to /etc/init.d, and inittab to /etc/inittab. This enables the USB gadget devices and login through it.
 - `make O=/sama5d2 all`
-- Copy over boot.bin, ghazan-sama5d27.dtb, rootfs.ubi, u-boot.bin, uImage to a machine with sam-ba 3.8 installed
+- Copy over boot.bin, ghazan-sama5d21.dtb, rootfs.ubi, u-boot.bin, uImage to a machine with sam-ba 3.8 installed
 - Connect a usb-c cable to USB-A port with the BOOT jumper off. Put on the jumper once power light is on
 - Sam-ba commands that worked for me, please adjust your directories:
 ```
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c erase::
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:0:1 -a nandflash:1:8:0xC2605007 -c writeboot:boot.bin
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:0:1 -a nandflash:1:8:0xC2605007 -c write:u-boot.bin:0x80000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:0:1 -a nandflash:1:8:0xC2605007 -c write:ghazan-sama5d27.dtb:0x180000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:uImage:0x1c0000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:rootfs.ubi:0x800000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c erase::
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c writeboot:boot.bin
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:u-boot.bin:0x80000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:ghazan-sama5d27.dtb:0x180000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:uImage:0x1c0000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:rootfs.ubi:0x800000
 ```
-- Connect a serial cable to the UART1 pins by the SWD port and open a terminal emulator
+- Connect a serial cable to the UART4 pins by the SWD port and open a terminal emulator
 - Press reset to reset the board
 - It SHOULD boot into Linux, the default bootarg works for me.
+- The USB host computer should also see a composite USB device: UART, serial and ETH
+
+## Games
+
+To enable prboom, change line 359 of file /sama5d2/build/prboom-2.5.0/src/SDL/i_main.c
+from:
+`myargv = argv;`
+to:
+`myargv = (const char * const*) argv;`
+.. and recompile (re-run make)
+
+To compile DGEN, pygame modules and other external packages, run `/sama5d2/host/environment-setup` and then compile the external package. Install binaries back into /sama5d2/target/usr/bin/
 
 
 ## Gadget fun

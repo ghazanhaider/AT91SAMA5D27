@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Sun Jul 21 05:30:34 2024
+# Wed Sep  4 20:55:42 2024
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_LOAD_AND_JUMP=y
@@ -84,7 +84,7 @@ CONFIG_SUPPORT_BUS_SPEED_166MHZ=y
 #
 # Console and Debug
 #
-CONFIG_CONSOLE_INDEX=0
+CONFIG_CONSOLE_INDEX=9
 CONFIG_DEBUG=y
 # CONFIG_DEBUG_INFO is not set
 CONFIG_DEBUG_LOUD=y

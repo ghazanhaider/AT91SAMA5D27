@@ -50,18 +50,17 @@
 #endif
 
 / {
-	model = "Ghazans SAMA5D27 Board";
+	model = "Ghazans SAMA5D21 Board";
 	compatible = "atmel,sama5d27-som1-ek", "atmel,sama5d2", "atmel,sama5";
 
         aliases {
-                serial0 = &uart0;
-                serial1 = &uart1;
+                serial0 = &uart4;
         };
 
 	chosen {
 		bootph-all;
-		bootargs = "console=ttyS1,115200 earlyprintk earlycon";
-		stdout-path = &uart1;
+		bootargs = "console=ttyS0,115200 earlyprintk earlycon";
+		stdout-path = &uart4;
 	};
 	memory {
 		device_type = "memory";
@@ -247,16 +246,9 @@
 			};
 */
 
-                        uart0: serial@f801c000 {
-                                pinctrl-names = "default";
-                                pinctrl-0 = <&pinctrl_uart0_default>;
-				status = "okay";
-				bootph-all;
-                        };
-
-			uart1: serial@f8020000 {
+			uart4: serial@fc00c000 {
 				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_uart1_default>;
+				pinctrl-0 = <&pinctrl_uart4_default>;
 				status = "okay";
 				bootph-all;
 			};
@@ -354,6 +346,13 @@
 					pinctrl_uart1_default: uart1_default {
 						pinmux = <PIN_PD2__URXD1>,
 							 <PIN_PD3__UTXD1>;
+						bias-disable;
+						bootph-all;
+					};
+
+					pinctrl_uart4_default: uart4_default {
+						pinmux = <PIN_PB3__URXD4>,
+							 <PIN_PB4__UTXD4>;
 						bias-disable;
 						bootph-all;
 					};
