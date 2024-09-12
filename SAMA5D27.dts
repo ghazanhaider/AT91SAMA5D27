@@ -54,13 +54,14 @@
 	compatible = "atmel,sama5d27-som1-ek", "atmel,sama5d2", "atmel,sama5";
 
         aliases {
-                serial0 = &uart4;
+                serial0 = &uart0;
+                serial1 = &uart1;
         };
 
 	chosen {
 		bootph-all;
 		bootargs = "console=ttyS0,115200 earlyprintk earlycon";
-		stdout-path = &uart4;
+		stdout-path = &uart0;
 	};
 	memory {
 		device_type = "memory";
@@ -246,9 +247,9 @@
 			};
 */
 
-			uart4: serial@fc00c000 {
+			uart0: serial@f801c000 {
 				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_uart4_default>;
+				pinctrl-0 = <&pinctrl_uart0_default>;
 				status = "okay";
 				bootph-all;
 			};
