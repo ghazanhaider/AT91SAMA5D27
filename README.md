@@ -31,33 +31,77 @@ rcS                                 : My init script that goes into /etc/init.d/
 
 ## Steps to build
 
-(I will improve on these with proper defconfigs)
+- Clone this repo:
+`git clone git@github.com:ghazanhaider/AT91SAMA5D27.git`
 
-- Git clone buildroot
-- Do any initial config `make O=/sama5d2 nconfig` and save
-- Overwrite the resulting .config file under /sama5d2 with br_config
-- `make O=/sama5d2 at91bootstrap3-menuconfig` and save
-- Patch the files with patch-TODO if you're also using D2516ECMDXGJD-U DDR3 memory. Else use the patched lines as a template to add your own memory if it is not in the golden list.
-- `make O=/sama5d2 uboot-nconfig` and save
-- Overwrite its .config with uboot_config
-- Do the same with Linux
+- Clone buildroot and enter:
+`git clone git@github.com:buildroot/buildroot.git`
+`cd buildroot`
+
+- Make a new build directory and enter it
+`mkdir build && cd build`
+
+- Build
+```
+make BR2_EXTERNAL=~/AT91SAMA5D27/br2_external AT91SAMA5D27_defconfig
+make nconfig
+make toolchain
+make all
+```
+
 - Copy rcS to /etc/init.d, and inittab to /etc/inittab. This enables the USB gadget devices and login through it.
-- `make O=/sama5d2 all`
 - Copy over boot.bin, ghazan-sama5d21.dtb, rootfs.ubi, u-boot.bin, uImage to a machine with sam-ba 3.8 installed
 - Connect a usb-c cable to USB-A port with the BOOT jumper off. Put on the jumper once power light is on
 - Sam-ba commands that worked for me, please adjust your directories:
 ```
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c erase::
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c writeboot:boot.bin
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:u-boot.bin:0x80000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:ghazan-sama5d27.dtb:0x180000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:uImage:0x1c0000
-./sam-ba_v3.8/sam-ba -p serial -d sama5d2:4:1 -a nandflash:1:8:0xC2605007 -c write:rootfs.ubi:0x800000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c erase::
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c writeboot:boot.bin
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:u-boot.bin:0x80000
+TODO ./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:u-boot-env.bin:0x140000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:ghazan-sama5d27.dtb:0x180000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:uImage:0x1c0000
+./sam-ba_v3.8/sam-ba -p serial -d sama5d2:1:1 -a nandflash:1:8:0xC2605007 -c write:rootfs.ubi:0x800000
 ```
-- Connect a serial cable to the UART4 pins by the SWD port and open a terminal emulator
+- Connect a serial cable to the UART0 or UART1 pins by the SWD port and open a terminal emulator
 - Press reset to reset the board
 - It SHOULD boot into Linux, the default bootarg works for me.
 - The USB host computer should also see a composite USB device: UART, serial and ETH
+
+
+## Console on which UART
+
+We have both uart0 and uart1 broken out on this board.
+Defaults are for uart0/ttyS0/0xf801c000
+To change console output to uart1, change these bits:
+
+- During sam-ba flashing, change device `sama5d2:0:1` to `sama5d2:1:1`. Only affects flashing output
+
+- Edit at91bootstrap3_config: `CONFIG_CONSOLE_INDEX=1`. Only affects At91Bootstrap3 output
+
+- Edit uboot_config:
+`CONFIG_DEBUG_UART_BASE=0xf8020000`
+`CONFIG_CONS_INDEX=1`
+This only affects uboot's early boot output
+
+- Edit uboot.env:
+`bootargs=console=ttyS1,115200 rootfstype=ubifs root=ubi0:rootfs ubi.mtd=5 rw`
+`stdin=serial@f8020000`
+`stdout=serial@f8020000`
+`stderr=serial@f8020000`
+This affects uboot and Linux kernel output
+
+- Edit uboot.dts: `stdout-path = &uart1;` and rebuild uboot
+This only affects uboot's output
+
+- Dirclean and rebuild at91bootstrap3, uboot and linux as needed
+
+
+Optional: Edit AT91SAMA5D27.dts: `stdout-path = &uart1;`
+
+
+In AT91SAMA5D27.dts, uart0 and uart1 do not use DMA to bypass a bug in kernel 4.x.
+DMA lines can be uncommented for any kernel at or above 5.x
+
 
 ## Games
 
@@ -71,7 +115,7 @@ to:
 To compile DGEN, pygame modules and other external packages, run `/sama5d2/host/environment-setup` and then compile the external package. Install binaries back into /sama5d2/target/usr/bin/
 
 
-## Gadget fun
+## Gadget fun (old notes)
 
 To enable USB Gadget serial + ECM Ethernet (works on MACOS without added drivers), follow these steps:
 - Copy over the rcS file to /etc/init.d/rcS

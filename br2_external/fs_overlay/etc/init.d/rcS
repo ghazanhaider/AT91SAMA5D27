@@ -1,0 +1,33 @@
+#!/bin/sh
+
+
+# Start all init scripts in /etc/init.d
+# executing them in numerical order.
+#
+# To avoid jffs2 ECC errors:
+#echo 1 > /proc/sys/kernel/printk
+#modprobe u_serial
+#modprobe g_serial
+modprobe g_multi file=/file
+#echo "ttyGS0::respawn:/sbin/getty -L ttyGS0 115200 linux" >> /etc/inittab
+
+for i in /etc/init.d/S??* ;do
+
+     # Ignore dangling symlinks (if any).
+     [ ! -f "$i" ] && continue
+
+     case "$i" in
+        *.sh)
+            # Source shell script for speed.
+            (
+                trap - INT QUIT TSTP
+                set start
+                . $i
+            )
+            ;;
+        *)
+            # No sh extension, so fork subprocess.
+            $i start
+            ;;
+    esac
+done
